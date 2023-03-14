@@ -1,16 +1,17 @@
-FROM ubuntu:22.04
+#!/bin/sh
 
-LABEL maintainer="lzm"
+warp-svc &
+sleep 5
+warp-cli --accept-tos status
 
-COPY warp-init.sh /
+warp-cli --accept-tos register
+warp-cli --accept-tos status
 
-RUN apt-get update \
-&& apt-get install -y curl \
-&& curl -L https://pkg.cloudflareclient.com/uploads/cloudflare_warp_2023_1_133_1_amd64_dc941b82de.deb -o /tmp/warp.deb \
-&& apt-get install -y /tmp/warp.deb \
-&& rm -rf /var/lib/apt/lists/* /tmp \
-&& chmod 777 /warp-init.sh
+warp-cli --accept-tos set-mode proxy
+warp-cli --accept-tos set-proxy-port 40001
+warp-cli --accept-tos connect
+warp-cli --accept-tos status
 
-EXPOSE 40000/tcp
-ENTRYPOINT ["/warp-init.sh"]
-
+# use socat to expose bind address from 127.0.0.1 to 0.0.0.0
+socat TCP-LISTEN:40000,fork,reuseaddr TCP4:127.0.0.1:40001 &
+bash

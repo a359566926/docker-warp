@@ -1,14 +1,16 @@
-FROM ubuntu:22.04
+#FROM ubuntu:22.04
+FROM debian
 
 LABEL maintainer="lzm"
 
 COPY warp-init.sh /
 
 RUN apt-get update \
-&& apt-get install -y curl \
+&& apt-get install -y curl socat \
+# download from https://pkg.cloudflareclient.com/packages/cloudflare-warp
 && curl -L https://pkg.cloudflareclient.com/uploads/cloudflare_warp_2023_1_133_1_amd64_dc941b82de.deb -o /tmp/warp.deb \
 && apt-get install -y /tmp/warp.deb \
-&& rm -rf /var/lib/apt/lists/* /tmp \
+&& rm -rf /var/lib/apt/lists/* /tmp/* \
 && chmod 777 /warp-init.sh
 
 EXPOSE 40000/tcp
